@@ -1,15 +1,15 @@
-/**
- * FIXME:
- * height is somehow 2x width
- */
-
-const canvas = document.querySelector("canvas");
+const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const COLORS = {
-  WHITE: "#fff",
-  BLACK: "#000",
-  ORANGE: "#ffbf00",
+const CONFIG = {
+  FPS: 10,
+  TILE_SIZE: 50,
+  GRID_GAP: 1,
+  THEME: {
+    TILE: "#fff",
+    PLAYER: "#000",
+    BACKGROUND: "#ffbf00",
+  },
 };
 
 const MOVE = {
@@ -18,12 +18,12 @@ const MOVE = {
   BACKWARD: -1,
 };
 
-const fps = 15;
-const tileSize = 25;
-const tileCountX = canvas.width / tileSize;
-const tileCountY = canvas.height / tileSize;
+const tileCountX = canvas.width / CONFIG.TILE_SIZE;
+const tileCountY = canvas.height / CONFIG.TILE_SIZE;
 
-let playerSpeed = tileSize;
+let isGameRunning = true;
+
+let playerSpeed = CONFIG.TILE_SIZE;
 let playerPosX = 0;
 let playerPosY = canvas.height / 2;
 
@@ -36,26 +36,31 @@ const drawRectangle = (color, posX, posY, width, height) => {
 };
 
 const drawBoard = () => {
-  drawRectangle(COLORS.ORANGE, 0, 0, canvas.width, canvas.height);
+  drawRectangle(CONFIG.THEME.BACKGROUND, 0, 0, canvas.width, canvas.height);
 };
 
 const drawGrid = () => {
-  const gridGap = 1;
   for (let i = 0; i < tileCountX; i++) {
     for (let j = 0; j < tileCountY; j++) {
       drawRectangle(
-        COLORS.WHITE,
-        tileSize * i,
-        tileSize * j,
-        tileSize - gridGap,
-        tileSize - gridGap
+        CONFIG.THEME.TILE,
+        CONFIG.TILE_SIZE * i,
+        CONFIG.TILE_SIZE * j,
+        CONFIG.TILE_SIZE - CONFIG.GRID_GAP,
+        CONFIG.TILE_SIZE - CONFIG.GRID_GAP
       );
     }
   }
 };
 
 const drawPlayer = () => {
-  drawRectangle(COLORS.BLACK, playerPosX, playerPosY, tileSize, tileSize);
+  drawRectangle(
+    CONFIG.THEME.PLAYER,
+    playerPosX,
+    playerPosY,
+    CONFIG.TILE_SIZE,
+    CONFIG.TILE_SIZE
+  );
 };
 
 const move = () => {
@@ -65,9 +70,9 @@ const move = () => {
 };
 
 const handleCollision = () => {
-  if (playerPosX > canvas.width - tileSize) playerPosX = 0;
+  if (playerPosX > canvas.width - CONFIG.TILE_SIZE) playerPosX = 0;
   if (playerPosX < 0) playerPosX = canvas.width;
-  if (playerPosY > canvas.height - tileSize) playerPosY = 0;
+  if (playerPosY > canvas.height - CONFIG.TILE_SIZE) playerPosY = 0;
   if (playerPosY < 0) playerPosY = canvas.height;
 };
 
@@ -107,12 +112,13 @@ const handleKeyDown = (event) => {
 document.addEventListener("keydown", handleKeyDown);
 
 const gameLoop = () => {
-  drawBoard();
-  drawGrid();
-  drawPlayer();
-  move();
+  if (isGameRunning) {
+    drawBoard();
+    drawGrid();
+    drawPlayer();
+    move();
 
-  setTimeout(gameLoop, 1000 / fps);
+    setTimeout(gameLoop, 1000 / CONFIG.FPS);
+  }
 };
-
 gameLoop();
